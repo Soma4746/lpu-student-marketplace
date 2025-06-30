@@ -1,0 +1,31 @@
+{
+  "name": "lpu-marketplace",
+  "version": "1.0.0",
+  "description": "LPU Student Marketplace - Full Stack Application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "seed": "cd server && node scripts/seedData.js",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "start": "cd server && npm start"
+  },
+  "keywords": [
+    "marketplace",
+    "student",
+    "lpu",
+    "react",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "LPU Students",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
