@@ -1,0 +1,16 @@
+[build]
+  base = "client"
+  command = "npm install && npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "18"
+  REACT_APP_API_URL = "https://lpu-student-marketplace.onrender.com/api"
+  REACT_APP_RAZORPAY_KEY_ID = "rzp_test_1234567890"
+  GENERATE_SOURCEMAP = "false"
+  CI = "false"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
