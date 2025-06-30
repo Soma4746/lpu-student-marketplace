@@ -178,6 +178,11 @@ REACT_APP_RAZORPAY_KEY_ID=your-razorpay-key
 
 This project is licensed under the MIT License.
 
+## 🚀 Live Demo
+
+- **Frontend**: https://harmonious-dodol-07d61c.netlify.app
+- **Backend**: https://lpu-student-marketplace.onrender.com
+
 ## 👥 Team
 
 Built for LPU students by LPU students.
