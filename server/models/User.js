@@ -93,8 +93,21 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'admin', 'super_admin'],
     default: 'user'
+  },
+  permissions: {
+    type: [String],
+    default: [],
+    enum: [
+      'manage_users',
+      'manage_items',
+      'manage_talent',
+      'view_analytics',
+      'moderate_content',
+      'manage_categories',
+      'system_settings'
+    ]
   },
   isVerified: {
     type: Boolean,

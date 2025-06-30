@@ -23,6 +23,12 @@ import CreateTalent from './pages/CreateTalent';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
 
+// Admin Components
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import ItemManagement from './pages/admin/ItemManagement';
+
 // Protected Route Component
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -69,6 +75,17 @@ function App() {
                   <CreateTalent />
                 </ProtectedRoute>
               } />
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="items" element={<ItemManagement />} />
+              </Route>
 
               {/* Redirects */}
               <Route path="/items" element={<Navigate to="/marketplace" replace />} />

@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  Search, 
-  ShoppingBag, 
-  Palette, 
-  User, 
-  Menu, 
-  X, 
+import {
+  Search,
+  ShoppingBag,
+  Palette,
+  User,
+  Menu,
+  X,
   Plus,
   LogOut,
   Settings,
-  Heart
+  Heart,
+  Shield
 } from 'lucide-react';
 
 const Navbar: React.FC = () => {
@@ -176,6 +177,16 @@ const Navbar: React.FC = () => {
                           <Settings className="h-4 w-4" />
                           <span>Profile Settings</span>
                         </Link>
+                        {state.user?.role === 'admin' && (
+                          <Link
+                            to="/admin"
+                            className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-t border-gray-100"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
+                            <Shield className="h-4 w-4" />
+                            <span>Admin Panel</span>
+                          </Link>
+                        )}
                         <button
                           onClick={handleLogout}
                           className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

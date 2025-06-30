@@ -60,6 +60,10 @@ export const authAPI = {
   updateProfile: (data: any) => api.put('/auth/profile', data),
   changePassword: (data: any) => api.post('/auth/change-password', data),
   verifyToken: () => api.get('/auth/verify-token'),
+  // Admin endpoints
+  get: (endpoint: string) => api.get(endpoint),
+  put: (endpoint: string, data?: any) => api.put(endpoint, data),
+  delete: (endpoint: string) => api.delete(endpoint),
 };
 
 export const itemsAPI = {
