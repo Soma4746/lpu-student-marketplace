@@ -43,7 +43,7 @@ async function createAdmin() {
       console.log('✅ Admin role updated!');
     } else {
       // Create new admin user
-      const bcrypt = require('bcrypt');
+      const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash('admin123', 10);
       
       const adminUser = new User({
