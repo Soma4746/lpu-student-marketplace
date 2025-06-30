@@ -146,6 +146,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 API URL: http://localhost:${PORT}/api`);
+  console.log(`✨ All new features deployed: Orders, Payments, Wishlist, Messaging, Reviews, Analytics`);
 });
 
 module.exports = app;
