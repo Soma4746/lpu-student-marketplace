@@ -171,4 +171,203 @@ export const validateFileSize = (file: File, maxSizeInMB: number): boolean => {
   return file.size <= maxSizeInBytes;
 };
 
+// ===== NEW API ENDPOINTS =====
+
+// Orders API
+export const ordersAPI = {
+  // Create order
+  createOrder: (orderData: any) => api.post('/orders', orderData),
+
+  // Get user orders
+  getOrders: (params?: any) => api.get('/orders', { params }),
+
+  // Get single order
+  getOrder: (orderId: string) => api.get(`/orders/${orderId}`),
+
+  // Update order status
+  updateOrderStatus: (orderId: string, status: string, metadata?: any) =>
+    api.put(`/orders/${orderId}/status`, { status, metadata }),
+
+  // Add message to order
+  addOrderMessage: (orderId: string, message: string) =>
+    api.post(`/orders/${orderId}/messages`, { message }),
+
+  // Mark order messages as read
+  markOrderMessagesRead: (orderId: string) =>
+    api.put(`/orders/${orderId}/messages/read`),
+
+  // Get order statistics
+  getOrderStats: () => api.get('/orders/stats')
+};
+
+// Payments API
+export const paymentsAPI = {
+  // Create Razorpay order
+  createRazorpayOrder: (orderId: string, amount: number) =>
+    api.post('/payments/create-order', { orderId, amount }),
+
+  // Verify payment
+  verifyPayment: (paymentData: any) =>
+    api.post('/payments/verify', paymentData),
+
+  // Upload UPI payment proof
+  uploadUPIPayment: (orderId: string, transactionId: string, screenshot?: string) =>
+    api.post('/payments/upi-upload', { orderId, transactionId, screenshot }),
+
+  // Get payment details
+  getPaymentDetails: (orderId: string) =>
+    api.get(`/payments/order/${orderId}`),
+
+  // Process refund
+  processRefund: (orderId: string, reason: string, amount?: number) =>
+    api.post('/payments/refund', { orderId, reason, amount })
+};
+
+// Wishlist API
+export const wishlistAPI = {
+  // Get wishlist
+  getWishlist: (params?: any) => api.get('/wishlist', { params }),
+
+  // Add item to wishlist
+  addItemToWishlist: (itemId: string) =>
+    api.post(`/wishlist/items/${itemId}`),
+
+  // Add talent to wishlist
+  addTalentToWishlist: (productId: string) =>
+    api.post(`/wishlist/talent/${productId}`),
+
+  // Remove item from wishlist
+  removeItemFromWishlist: (itemId: string) =>
+    api.delete(`/wishlist/items/${itemId}`),
+
+  // Remove talent from wishlist
+  removeTalentFromWishlist: (productId: string) =>
+    api.delete(`/wishlist/talent/${productId}`),
+
+  // Clear wishlist
+  clearWishlist: (type?: 'items' | 'talent') =>
+    api.delete('/wishlist/clear', { params: { type } }),
+
+  // Check if item is in wishlist
+  checkWishlist: (type: 'items' | 'talent', id: string) =>
+    api.get(`/wishlist/check/${type}/${id}`)
+};
+
+// Reviews API
+export const reviewsAPI = {
+  // Create review
+  createReview: (reviewData: any) => api.post('/reviews', reviewData),
+
+  // Get reviews
+  getReviews: (params?: any) => api.get('/reviews', { params }),
+
+  // Get single review
+  getReview: (reviewId: string) => api.get(`/reviews/${reviewId}`),
+
+  // Update review
+  updateReview: (reviewId: string, reviewData: any) =>
+    api.put(`/reviews/${reviewId}`, reviewData),
+
+  // Delete review
+  deleteReview: (reviewId: string) => api.delete(`/reviews/${reviewId}`),
+
+  // Vote on review
+  voteOnReview: (reviewId: string, helpful: boolean) =>
+    api.post(`/reviews/${reviewId}/helpful`, { helpful }),
+
+  // Add response to review
+  addReviewResponse: (reviewId: string, comment: string) =>
+    api.post(`/reviews/${reviewId}/response`, { comment }),
+
+  // Get review statistics
+  getReviewStats: (targetId: string, targetType: 'user' | 'item' | 'talent') =>
+    api.get(`/reviews/stats/${targetId}/${targetType}`),
+
+  // Check if user can review
+  canReview: (orderId: string) => api.get(`/reviews/can-review/${orderId}`)
+};
+
+// Messages API
+export const messagesAPI = {
+  // Get conversations
+  getConversations: (params?: any) =>
+    api.get('/messages/conversations', { params }),
+
+  // Create conversation
+  createConversation: (conversationData: any) =>
+    api.post('/messages/conversations', conversationData),
+
+  // Get conversation details
+  getConversation: (conversationId: string) =>
+    api.get(`/messages/conversations/${conversationId}`),
+
+  // Get messages in conversation
+  getMessages: (conversationId: string, params?: any) =>
+    api.get(`/messages/conversations/${conversationId}/messages`, { params }),
+
+  // Send message
+  sendMessage: (conversationId: string, messageData: any) =>
+    api.post(`/messages/conversations/${conversationId}/messages`, messageData),
+
+  // Mark message as read
+  markMessageRead: (messageId: string) =>
+    api.put(`/messages/${messageId}/read`),
+
+  // Mark all messages in conversation as read
+  markAllMessagesRead: (conversationId: string) =>
+    api.put(`/messages/conversations/${conversationId}/read-all`),
+
+  // Edit message
+  editMessage: (messageId: string, content: string) =>
+    api.put(`/messages/${messageId}`, { content }),
+
+  // Delete message
+  deleteMessage: (messageId: string) => api.delete(`/messages/${messageId}`),
+
+  // Get unread count
+  getUnreadCount: () => api.get('/messages/unread-count')
+};
+
+// Notifications API
+export const notificationsAPI = {
+  // Contact seller
+  contactSeller: (contactData: any) =>
+    api.post('/notifications/contact-seller', contactData),
+
+  // Send welcome email
+  sendWelcomeEmail: (userId: string) =>
+    api.post('/notifications/welcome', { userId }),
+
+  // Request password reset
+  requestPasswordReset: (email: string) =>
+    api.post('/notifications/password-reset', { email }),
+
+  // Verify reset token
+  verifyResetToken: (email: string, token: string) =>
+    api.post('/notifications/verify-reset-token', { email, token }),
+
+  // Reset password
+  resetPassword: (email: string, token: string, newPassword: string) =>
+    api.post('/notifications/reset-password', { email, token, newPassword }),
+
+  // Send bulk email (admin only)
+  sendBulkEmail: (emailData: any) =>
+    api.post('/notifications/bulk-email', emailData)
+};
+
+// Analytics API
+export const analyticsAPI = {
+  // Get dashboard analytics (admin only)
+  getDashboard: (period?: string) =>
+    api.get('/analytics/dashboard', { params: { period } }),
+
+  // Get user statistics
+  getUserStats: (userId: string) =>
+    api.get(`/analytics/user-stats/${userId}`),
+
+  // Get popular items
+  getPopularItems: (params?: any) =>
+    api.get('/analytics/popular-items', { params })
+};
+
 export default api;
