@@ -138,7 +138,19 @@ const userSchema = new mongoose.Schema({
   lastActive: {
     type: Date,
     default: Date.now
-  }
+  },
+  wishlist: {
+    items: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Item'
+    }],
+    talentProducts: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TalentProduct'
+    }]
+  },
+  passwordResetToken: String,
+  passwordResetExpires: Date
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
