@@ -12,7 +12,9 @@ import {
   LogOut,
   Settings,
   Heart,
-  Shield
+  Shield,
+  ShoppingCart,
+  Package
 } from 'lucide-react';
 
 const Navbar: React.FC = () => {
@@ -176,6 +178,22 @@ const Navbar: React.FC = () => {
                         >
                           <Settings className="h-4 w-4" />
                           <span>Profile Settings</span>
+                        </Link>
+                        <Link
+                          to="/orders"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          <Package className="h-4 w-4" />
+                          <span>My Orders</span>
+                        </Link>
+                        <Link
+                          to="/wishlist"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          <Heart className="h-4 w-4" />
+                          <span>Wishlist</span>
                         </Link>
                         {state.user?.role === 'admin' && (
                           <Link

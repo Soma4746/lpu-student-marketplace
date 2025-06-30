@@ -22,6 +22,8 @@ import CreateItem from './pages/CreateItem';
 import CreateTalent from './pages/CreateTalent';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
+import Orders from './components/Orders';
+import Wishlist from './components/Wishlist';
 
 // Admin Components
 import AdminLayout from './components/admin/AdminLayout';
@@ -73,6 +75,16 @@ function App() {
               <Route path="/create-talent" element={
                 <ProtectedRoute>
                   <CreateTalent />
+                </ProtectedRoute>
+              } />
+              <Route path="/orders" element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              } />
+              <Route path="/wishlist" element={
+                <ProtectedRoute>
+                  <Wishlist />
                 </ProtectedRoute>
               } />
 
