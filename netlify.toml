@@ -1,6 +1,7 @@
 [build]
-  command = "cd client && npm install && npm run build"
+  command = "cd client && npm ci && npm run build"
   publish = "client/build"
+  base = "."
 
 [build.environment]
   NODE_VERSION = "18"
@@ -8,7 +9,7 @@
   REACT_APP_RAZORPAY_KEY_ID = "rzp_test_1234567890"
   GENERATE_SOURCEMAP = "false"
   CI = "false"
-  # Force fresh deployment
+  NPM_FLAGS = "--legacy-peer-deps"
 
 [[redirects]]
   from = "/*"
