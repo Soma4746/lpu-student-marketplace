@@ -27,11 +27,12 @@ app.use(cors({
         'https://lpu-student-marketplace-xtuv.vercel.app',
         'https://lpu-student-marketplace.vercel.app',
         'https://harmonious-dodol-07d61c.netlify.app',
+        'https://lpu-student-marketplace.netlify.app',
         /\.vercel\.app$/,
         /\.netlify\.app$/,
         /\.onrender\.com$/
       ]
-    : ['http://localhost:3000'],
+    : ['http://localhost:3000', 'http://localhost:54795'],
   credentials: true
 }));
 
