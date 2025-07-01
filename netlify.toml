@@ -1,5 +1,5 @@
 [build]
-  command = "cd client && npm ci && npm run build"
+  command = "cd client && npm install --legacy-peer-deps && npm run build"
   publish = "client/build"
   base = "."
 
@@ -10,6 +10,11 @@
   GENERATE_SOURCEMAP = "false"
   CI = "false"
   NPM_FLAGS = "--legacy-peer-deps"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[redirects]]
   from = "/*"
