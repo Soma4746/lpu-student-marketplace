@@ -28,9 +28,13 @@ app.use(cors({
         'https://lpu-student-marketplace.vercel.app',
         'https://harmonious-dodol-07d61c.netlify.app',
         'https://lpu-student-marketplace.netlify.app',
+        'https://lpu-marketplace.surge.sh',
+        'https://soma4746.github.io',
         /\.vercel\.app$/,
         /\.netlify\.app$/,
-        /\.onrender\.com$/
+        /\.onrender\.com$/,
+        /\.surge\.sh$/,
+        /\.github\.io$/
       ]
     : ['http://localhost:3000', 'http://localhost:54795'],
   credentials: true
