@@ -1,8 +1,8 @@
 {
-  "buildCommand": "cd client && npm install && npm run build",
+  "buildCommand": "cd client && npm install --legacy-peer-deps && npm run build",
   "outputDirectory": "client/build",
   "installCommand": "cd client && npm install --legacy-peer-deps",
-  "framework": "create-react-app",
+  "framework": null,
   "env": {
     "REACT_APP_API_URL": "https://lpu-student-marketplace.onrender.com/api",
     "REACT_APP_RAZORPAY_KEY_ID": "rzp_test_1234567890",
