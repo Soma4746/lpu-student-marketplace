@@ -1,0 +1,10 @@
+server/
+node_modules/
+.git/
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+test-registration.js
+create-admin.js
