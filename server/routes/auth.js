@@ -12,10 +12,10 @@ const {
 } = require('../middleware/validation');
 const User = require('../models/User');
 
-// @route   POST /api/auth/register
-// @desc    Register a new user
+// @route   POST /api/auth/register/student
+// @desc    Register a new student
 // @access  Public
-router.post('/register', 
+router.post('/register/student',
   sensitiveRateLimit,
   validateLPUEmail,
   validateUserRegistration,
@@ -43,7 +43,7 @@ router.post('/register',
         });
       }
 
-      // Create user
+      // Create student user
       const user = await User.create({
         name,
         email,
@@ -54,7 +54,8 @@ router.post('/register',
         hostel,
         room,
         whatsapp,
-        bio
+        bio,
+        role: 'user' // Explicitly set as student/user
       });
 
       // Generate token
@@ -88,6 +89,144 @@ router.post('/register',
         message: 'Server error during registration'
       });
     }
+  }
+);
+
+// @route   POST /api/auth/register/admin
+// @desc    Register a new admin
+// @access  Public (but requires admin code)
+router.post('/register/admin',
+  sensitiveRateLimit,
+  validateLPUEmail,
+  async (req, res) => {
+    try {
+      const {
+        name,
+        email,
+        password,
+        phone,
+        employeeId,
+        department,
+        designation,
+        adminType,
+        adminCode
+      } = req.body;
+
+      // Validate admin code (you can change this to your preferred code)
+      const validAdminCodes = ['LPUADMIN2024', 'ADMIN123456', 'SUPERADMIN'];
+      if (!validAdminCodes.includes(adminCode)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid admin registration code'
+        });
+      }
+
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'User already exists with this email'
+        });
+      }
+
+      // Validate required admin fields
+      if (!employeeId || !department || !designation || !adminType) {
+        return res.status(400).json({
+          success: false,
+          message: 'All admin fields are required'
+        });
+      }
+
+      // Set admin permissions based on admin type
+      let permissions = [];
+      switch (adminType) {
+        case 'Super Admin':
+          permissions = [
+            'manage_users',
+            'manage_items',
+            'manage_talent',
+            'view_analytics',
+            'moderate_content',
+            'manage_categories',
+            'system_settings'
+          ];
+          break;
+        case 'Department Admin':
+          permissions = ['manage_users', 'manage_items', 'view_analytics'];
+          break;
+        case 'Content Moderator':
+          permissions = ['moderate_content', 'manage_items'];
+          break;
+        case 'User Manager':
+          permissions = ['manage_users'];
+          break;
+        case 'Analytics Viewer':
+          permissions = ['view_analytics'];
+          break;
+        default:
+          permissions = ['view_analytics'];
+      }
+
+      // Create admin user
+      const user = await User.create({
+        name,
+        email,
+        password,
+        phone,
+        program: department, // Use department as program
+        year: 'Staff',
+        hostel: 'Staff Quarters',
+        room: employeeId,
+        role: 'admin',
+        permissions,
+        // Store admin-specific data in bio for now
+        bio: `Employee ID: ${employeeId} | Designation: ${designation} | Admin Type: ${adminType}`
+      });
+
+      // Generate token
+      const token = generateToken(user._id);
+
+      // Remove password from response
+      const userResponse = user.toObject();
+      delete userResponse.password;
+
+      res.status(201).json({
+        success: true,
+        message: 'Admin registered successfully',
+        data: {
+          user: userResponse,
+          token
+        }
+      });
+
+    } catch (error) {
+      console.error('Admin registration error:', error);
+
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already exists'
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        message: 'Server error during admin registration'
+      });
+    }
+  }
+);
+
+// Keep the old register endpoint for backward compatibility
+router.post('/register',
+  sensitiveRateLimit,
+  validateLPUEmail,
+  validateUserRegistration,
+  async (req, res) => {
+    // Redirect to student registration
+    req.url = '/register/student';
+    return router.handle(req, res);
   }
 );
 

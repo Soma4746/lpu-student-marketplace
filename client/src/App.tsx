@@ -12,6 +12,9 @@ import Home from './pages/Home';
 import PurposeSelection from './pages/PurposeSelection';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import RegisterTypeSelection from './pages/auth/RegisterTypeSelection';
+import StudentRegister from './pages/auth/StudentRegister';
+import AdminRegister from './pages/auth/AdminRegister';
 import Dashboard from './pages/Dashboard';
 import Marketplace from './pages/Marketplace';
 import TalentStore from './pages/TalentStore';
@@ -54,7 +57,11 @@ function App() {
 
               {/* Auth Routes */}
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/register" element={<RegisterTypeSelection />} />
+              <Route path="/register/student" element={<StudentRegister />} />
+              <Route path="/register/admin" element={<AdminRegister />} />
+              {/* Keep old register route for backward compatibility */}
+              <Route path="/register/old" element={<Register />} />
 
               {/* Protected Routes */}
               <Route path="/dashboard" element={

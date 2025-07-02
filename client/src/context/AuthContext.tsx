@@ -127,8 +127,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: any): Promise<void> => {
     try {
       dispatch({ type: 'AUTH_START' });
-      
-      const response = await authAPI.register(userData);
+
+      // Choose the appropriate registration endpoint
+      let response;
+      if (userData.registrationType === 'admin') {
+        response = await authAPI.registerAdmin(userData);
+      } else {
+        response = await authAPI.registerStudent(userData);
+      }
+
       const { user, token } = response.data.data;
       
       // Store in localStorage

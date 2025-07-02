@@ -10,6 +10,9 @@ const api = axios.create({
   },
 });
 
+// Debug logging
+console.log('API Base URL:', process.env.REACT_APP_API_URL || 'http://localhost:5000/api');
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
@@ -55,6 +58,8 @@ api.interceptors.response.use(
 // API endpoints
 export const authAPI = {
   register: (data: any) => api.post('/auth/register', data),
+  registerStudent: (data: any) => api.post('/auth/register/student', data),
+  registerAdmin: (data: any) => api.post('/auth/register/admin', data),
   login: (data: any) => api.post('/auth/login', data),
   getProfile: () => api.get('/auth/profile'),
   updateProfile: (data: any) => api.put('/auth/profile', data),
