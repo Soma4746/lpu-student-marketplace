@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect, admin } = require('../middleware/auth');
+const { requireSuperAdmin, requireAdminAccess } = require('../middleware/superAdmin');
 const { validateObjectId, validatePagination } = require('../middleware/validation');
 const User = require('../models/User');
 const Item = require('../models/Item');
@@ -10,8 +11,8 @@ const Order = require('../models/Order');
 
 // @route   GET /api/admin/dashboard
 // @desc    Get admin dashboard statistics
-// @access  Private (Admin only)
-router.get('/dashboard', protect, admin, async (req, res) => {
+// @access  Private (Super Admin only)
+router.get('/dashboard', protect, requireSuperAdmin, async (req, res) => {
   try {
     const [
       totalUsers,
@@ -85,10 +86,10 @@ router.get('/dashboard', protect, admin, async (req, res) => {
 
 // @route   GET /api/admin/users
 // @desc    Get all users for admin management
-// @access  Private (Admin only)
-router.get('/users', 
-  protect, 
-  admin, 
+// @access  Private (Super Admin only)
+router.get('/users',
+  protect,
+  requireSuperAdmin,
   validatePagination,
   async (req, res) => {
     try {
@@ -156,10 +157,10 @@ router.get('/users',
 
 // @route   PUT /api/admin/users/:id/status
 // @desc    Update user status (activate/deactivate)
-// @access  Private (Admin only)
+// @access  Private (Super Admin only)
 router.put('/users/:id/status',
   protect,
-  admin,
+  requireSuperAdmin,
   validateObjectId(),
   async (req, res) => {
     try {
@@ -203,10 +204,10 @@ router.put('/users/:id/status',
 
 // @route   GET /api/admin/items
 // @desc    Get all items for admin management
-// @access  Private (Admin only)
+// @access  Private (Super Admin only)
 router.get('/items',
   protect,
-  admin,
+  requireSuperAdmin,
   validatePagination,
   async (req, res) => {
     try {
@@ -283,10 +284,10 @@ router.get('/items',
 
 // @route   PUT /api/admin/items/:id/status
 // @desc    Update item status
-// @access  Private (Admin only)
+// @access  Private (Super Admin only)
 router.put('/items/:id/status',
   protect,
-  admin,
+  requireSuperAdmin,
   validateObjectId(),
   async (req, res) => {
     try {
@@ -331,10 +332,10 @@ router.put('/items/:id/status',
 
 // @route   GET /api/admin/reports
 // @desc    Get reported items
-// @access  Private (Admin only)
+// @access  Private (Super Admin only)
 router.get('/reports',
   protect,
-  admin,
+  requireSuperAdmin,
   validatePagination,
   async (req, res) => {
     try {
@@ -392,10 +393,10 @@ router.get('/reports',
 
 // @route   POST /api/admin/items/:id/resolve-reports
 // @desc    Resolve reports for an item
-// @access  Private (Admin only)
+// @access  Private (Super Admin only)
 router.post('/items/:id/resolve-reports',
   protect,
-  admin,
+  requireSuperAdmin,
   validateObjectId(),
   async (req, res) => {
     try {
