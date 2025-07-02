@@ -21,22 +21,34 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
+const allowedOrigins = [
+  'https://lpu-student-marketplace-xtuv.vercel.app',
+  'https://lpu-student-marketplace.vercel.app',
+  'https://harmonious-dodol-07d61c.netlify.app',
+  'https://lpu-student-marketplace.netlify.app',
+  'https://lpu-marketplace.surge.sh',
+  'https://soma4746.github.io',
+  'http://localhost:3000',
+  'http://localhost:54795'
+];
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? [
-        'https://lpu-student-marketplace-xtuv.vercel.app',
-        'https://lpu-student-marketplace.vercel.app',
-        'https://harmonious-dodol-07d61c.netlify.app',
-        'https://lpu-student-marketplace.netlify.app',
-        'https://lpu-marketplace.surge.sh',
-        'https://soma4746.github.io',
-        /\.vercel\.app$/,
-        /\.netlify\.app$/,
-        /\.onrender\.com$/,
-        /\.surge\.sh$/,
-        /\.github\.io$/
-      ]
-    : ['http://localhost:3000', 'http://localhost:54795'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    // Check if origin is in allowed list or matches patterns
+    if (allowedOrigins.includes(origin) ||
+        /\.vercel\.app$/.test(origin) ||
+        /\.netlify\.app$/.test(origin) ||
+        /\.surge\.sh$/.test(origin) ||
+        /\.github\.io$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    console.log('CORS blocked origin:', origin);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
