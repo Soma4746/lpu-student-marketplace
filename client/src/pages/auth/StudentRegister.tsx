@@ -43,10 +43,10 @@ const studentRegisterSchema = yup.object({
     .required('Academic year is required'),
   hostel: yup
     .string()
-    .required('Hostel name is required'),
+    .optional(),
   room: yup
     .string()
-    .required('Room number is required'),
+    .optional(),
   whatsapp: yup
     .string()
     .matches(/^[0-9]{10}$/, 'WhatsApp number must be 10 digits')
@@ -122,6 +122,7 @@ const StudentRegister: React.FC = () => {
   ];
 
   const hostels = [
+    'Not in Hostel',
     'Boys Hostel 1',
     'Boys Hostel 2',
     'Boys Hostel 3',
@@ -374,7 +375,7 @@ const StudentRegister: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="hostel" className="block text-sm font-medium text-gray-700 mb-1">
-                  Hostel *
+                  Hostel
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -386,7 +387,7 @@ const StudentRegister: React.FC = () => {
                       errors.hostel ? 'border-red-300' : 'border-gray-300'
                     }`}
                   >
-                    <option value="">Select your hostel</option>
+                    <option value="">Select your hostel (optional)</option>
                     {hostels.map((hostel) => (
                       <option key={hostel} value={hostel}>
                         {hostel}
@@ -401,7 +402,7 @@ const StudentRegister: React.FC = () => {
 
               <div>
                 <label htmlFor="room" className="block text-sm font-medium text-gray-700 mb-1">
-                  Room Number *
+                  Room Number
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -413,7 +414,7 @@ const StudentRegister: React.FC = () => {
                     className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                       errors.room ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="e.g., A-101, B-205"
+                    placeholder="e.g., A-101, B-205 (optional)"
                   />
                 </div>
                 {errors.room && (
