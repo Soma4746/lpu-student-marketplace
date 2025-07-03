@@ -38,11 +38,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Main Content */}
         <main className={`flex-1 transition-all duration-300 ${
-          isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+          isSidebarCollapsed ? 'lg:ml-12' : 'lg:ml-60'
         }`}>
-          <div className="p-6">
-            {children}
-          </div>
+          {children}
         </main>
       </div>
     </div>

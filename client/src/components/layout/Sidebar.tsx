@@ -11,7 +11,6 @@ import {
   Heart,
   ShoppingCart,
   User,
-  Menu,
   X
 } from 'lucide-react';
 
@@ -42,65 +41,66 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 bg-slate-900 shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-          isCollapsed ? 'w-16' : 'w-64'
+        className={`fixed inset-y-0 left-0 z-50 bg-slate-900 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+          isCollapsed ? 'w-12' : 'w-60'
         } ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-4 border-b border-slate-700/50">
-            {!isCollapsed && (
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">L</span>
-                </div>
-                <h2 className="text-lg font-semibold text-white">Menu</h2>
-              </div>
-            )}
-            {isCollapsed && (
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto">
-                <span className="text-white font-bold text-sm">L</span>
-              </div>
-            )}
-            <div className="flex items-center">
-              {/* Desktop Toggle Button */}
+          {/* Minimal Header */}
+          <div className="flex items-center justify-center py-4">
+            {isCollapsed ? (
               <button
                 onClick={onToggleCollapse}
-                className="hidden lg:block p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all duration-200"
-                title={isCollapsed ? 'Expand Menu' : 'Collapse Menu'}
+                className="hidden lg:flex flex-col items-center justify-center w-8 h-8 text-slate-400 hover:text-white transition-colors"
+                title="Open Menu"
               >
-                <Menu className="h-4 w-4" />
+                <div className="w-4 h-0.5 bg-current mb-1"></div>
+                <div className="w-4 h-0.5 bg-current mb-1"></div>
+                <div className="w-4 h-0.5 bg-current"></div>
               </button>
-              {/* Mobile Close Button */}
-              <button
-                onClick={onClose}
-                className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all duration-200"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between w-full px-4">
+                <span className="text-white font-semibold">Menu</span>
+                <button
+                  onClick={onToggleCollapse}
+                  className="hidden lg:block p-1 text-slate-400 hover:text-white transition-colors"
+                  title="Close Menu"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+            {/* Mobile Close Button */}
+            <button
+              onClick={onClose}
+              className="lg:hidden absolute top-4 right-4 p-1 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Navigation Content */}
-          <div className="flex-1 overflow-y-auto py-3">
-            <nav className={`space-y-1 ${isCollapsed ? 'px-2' : 'px-3'}`}>
+          <div className="flex-1 overflow-y-auto">
+            <nav className={`${isCollapsed ? 'px-1' : 'px-3'}`}>
               {/* Home */}
               <Link
                 to="/"
                 onClick={onClose}
-                className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                  isCollapsed ? 'justify-center px-1' : 'px-3'
+                } ${
                   isActive('/')
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-300 hover:bg-slate-700/70 hover:text-white'
+                    ? 'text-blue-400'
+                    : 'text-slate-300 hover:text-white'
                 }`}
                 title={isCollapsed ? 'Home' : ''}
               >
-                <Home className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                {!isCollapsed && <span className="ml-3 font-medium">Home</span>}
+                <Home className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="ml-3">Home</span>}
                 {isCollapsed && (
-                  <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                  <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                     Home
                   </div>
                 )}
@@ -110,17 +110,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
               <Link
                 to="/marketplace"
                 onClick={onClose}
-                className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                  isCollapsed ? 'justify-center px-1' : 'px-3'
+                } ${
                   isActive('/marketplace')
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-300 hover:bg-slate-700/70 hover:text-white'
+                    ? 'text-blue-400'
+                    : 'text-slate-300 hover:text-white'
                 }`}
                 title={isCollapsed ? 'Marketplace' : ''}
               >
-                <ShoppingBag className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                {!isCollapsed && <span className="ml-3 font-medium">Marketplace</span>}
+                <ShoppingBag className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="ml-3">Marketplace</span>}
                 {isCollapsed && (
-                  <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                  <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                     Marketplace
                   </div>
                 )}
@@ -130,17 +132,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
               <Link
                 to="/talent-store"
                 onClick={onClose}
-                className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                  isCollapsed ? 'justify-center px-1' : 'px-3'
+                } ${
                   isActive('/talent-store')
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-300 hover:bg-slate-700/70 hover:text-white'
+                    ? 'text-blue-400'
+                    : 'text-slate-300 hover:text-white'
                 }`}
                 title={isCollapsed ? 'Talent Store' : ''}
               >
-                <Palette className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                {!isCollapsed && <span className="ml-3 font-medium">Talent Store</span>}
+                <Palette className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="ml-3">Talent Store</span>}
                 {isCollapsed && (
-                  <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                  <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                     Talent Store
                   </div>
                 )}
@@ -151,24 +155,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
                 <>
                   {/* Divider */}
                   {!isCollapsed && (
-                    <div className="my-4 border-t border-slate-700/50"></div>
+                    <div className="my-3 border-t border-slate-700/30"></div>
                   )}
 
                   {/* Dashboard */}
                   <Link
                     to="/dashboard"
                     onClick={onClose}
-                    className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                    className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                      isCollapsed ? 'justify-center px-1' : 'px-3'
+                    } ${
                       isActive('/dashboard')
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'text-slate-300 hover:bg-slate-700/70 hover:text-white'
+                        ? 'text-blue-400'
+                        : 'text-slate-300 hover:text-white'
                     }`}
                     title={isCollapsed ? 'Dashboard' : ''}
                   >
-                    <User className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                    {!isCollapsed && <span className="ml-3 font-medium">Dashboard</span>}
+                    <User className="h-5 w-5 flex-shrink-0" />
+                    {!isCollapsed && <span className="ml-3">Dashboard</span>}
                     {isCollapsed && (
-                      <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                      <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                         Dashboard
                       </div>
                     )}
@@ -180,17 +186,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
                       <Link
                         to="/orders"
                         onClick={onClose}
-                        className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                        className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                          isCollapsed ? 'justify-center px-1' : 'px-3'
+                        } ${
                           isActive('/orders')
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'text-slate-300 hover:bg-slate-700/70 hover:text-white'
+                            ? 'text-blue-400'
+                            : 'text-slate-300 hover:text-white'
                         }`}
                         title={isCollapsed ? 'My Orders' : ''}
                       >
-                        <Package className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                        {!isCollapsed && <span className="ml-3 font-medium">My Orders</span>}
+                        <Package className="h-5 w-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3">My Orders</span>}
                         {isCollapsed && (
-                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                             My Orders
                           </div>
                         )}
@@ -199,17 +207,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
                       <Link
                         to="/wishlist"
                         onClick={onClose}
-                        className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                        className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                          isCollapsed ? 'justify-center px-1' : 'px-3'
+                        } ${
                           isActive('/wishlist')
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'text-slate-300 hover:bg-slate-700/70 hover:text-white'
+                            ? 'text-blue-400'
+                            : 'text-slate-300 hover:text-white'
                         }`}
                         title={isCollapsed ? 'Wishlist' : ''}
                       >
-                        <Heart className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                        {!isCollapsed && <span className="ml-3 font-medium">Wishlist</span>}
+                        <Heart className="h-5 w-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3">Wishlist</span>}
                         {isCollapsed && (
-                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                             Wishlist
                           </div>
                         )}
@@ -218,17 +228,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
                       <Link
                         to="/cart"
                         onClick={onClose}
-                        className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                        className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                          isCollapsed ? 'justify-center px-1' : 'px-3'
+                        } ${
                           isActive('/cart')
-                            ? 'bg-blue-600 text-white shadow-md'
-                            : 'text-slate-300 hover:bg-slate-700/70 hover:text-white'
+                            ? 'text-blue-400'
+                            : 'text-slate-300 hover:text-white'
                         }`}
                         title={isCollapsed ? 'Shopping Cart' : ''}
                       >
-                        <ShoppingCart className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                        {!isCollapsed && <span className="ml-3 font-medium">Shopping Cart</span>}
+                        <ShoppingCart className="h-5 w-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3">Shopping Cart</span>}
                         {isCollapsed && (
-                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                             Shopping Cart
                           </div>
                         )}
@@ -236,24 +248,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
 
                       {/* Divider */}
                       {!isCollapsed && (
-                        <div className="my-4 border-t border-slate-700/50"></div>
+                        <div className="my-3 border-t border-slate-700/30"></div>
                       )}
 
                       {/* Create/Sell Section */}
                       <Link
                         to="/create-item"
                         onClick={onClose}
-                        className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                        className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                          isCollapsed ? 'justify-center px-1' : 'px-3'
+                        } ${
                           isActive('/create-item')
-                            ? 'bg-green-600 text-white shadow-md'
-                            : 'text-slate-300 hover:bg-green-600/20 hover:text-green-300'
+                            ? 'text-green-400'
+                            : 'text-slate-300 hover:text-green-400'
                         }`}
                         title={isCollapsed ? 'Sell Item' : ''}
                       >
-                        <Plus className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                        {!isCollapsed && <span className="ml-3 font-medium">Sell Item</span>}
+                        <Plus className="h-5 w-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3">Sell Item</span>}
                         {isCollapsed && (
-                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                             Sell Item
                           </div>
                         )}
@@ -262,17 +276,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggl
                       <Link
                         to="/create-talent"
                         onClick={onClose}
-                        className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                        className={`flex items-center py-3 text-sm font-medium transition-all duration-200 group relative ${
+                          isCollapsed ? 'justify-center px-1' : 'px-3'
+                        } ${
                           isActive('/create-talent')
-                            ? 'bg-purple-600 text-white shadow-md'
-                            : 'text-slate-300 hover:bg-purple-600/20 hover:text-purple-300'
+                            ? 'text-purple-400'
+                            : 'text-slate-300 hover:text-purple-400'
                         }`}
                         title={isCollapsed ? 'Offer Service' : ''}
                       >
-                        <Palette className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? 'mx-auto' : ''}`} />
-                        {!isCollapsed && <span className="ml-3 font-medium">Offer Service</span>}
+                        <Palette className="h-5 w-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3">Offer Service</span>}
                         {isCollapsed && (
-                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-lg">
+                          <div className="absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
                             Offer Service
                           </div>
                         )}
