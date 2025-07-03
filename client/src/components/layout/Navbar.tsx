@@ -170,7 +170,7 @@ const Navbar: React.FC = () => {
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
                           <User className="h-4 w-4" />
-                          <span>Dashboard</span>
+                          <span>{canAccessAdmin(state.user) ? 'Admin Dashboard' : 'Dashboard'}</span>
                         </Link>
                         <Link
                           to="/profile"
@@ -188,14 +188,35 @@ const Navbar: React.FC = () => {
                           <Package className="h-4 w-4" />
                           <span>My Orders</span>
                         </Link>
-                        <Link
-                          to="/wishlist"
-                          className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => setIsProfileMenuOpen(false)}
-                        >
-                          <Heart className="h-4 w-4" />
-                          <span>Wishlist</span>
-                        </Link>
+                        {/* User-specific navigation items */}
+                        {!canAccessAdmin(state.user) && (
+                          <>
+                            <Link
+                              to="/cart"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsProfileMenuOpen(false)}
+                            >
+                              <ShoppingCart className="h-4 w-4" />
+                              <span>Cart</span>
+                            </Link>
+                            <Link
+                              to="/wishlist"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsProfileMenuOpen(false)}
+                            >
+                              <Heart className="h-4 w-4" />
+                              <span>Wishlist</span>
+                            </Link>
+                            <Link
+                              to="/orders"
+                              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => setIsProfileMenuOpen(false)}
+                            >
+                              <Package className="h-4 w-4" />
+                              <span>My Orders</span>
+                            </Link>
+                          </>
+                        )}
                         {canAccessAdmin(state.user) && (
                           <Link
                             to="/admin"
@@ -332,8 +353,38 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User className="h-5 w-5" />
-                  <span>Dashboard</span>
+                  <span>{canAccessAdmin(state.user) ? 'Admin Dashboard' : 'Dashboard'}</span>
                 </Link>
+
+                {/* User-specific mobile navigation */}
+                {!canAccessAdmin(state.user) && (
+                  <>
+                    <Link
+                      to="/cart"
+                      className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <ShoppingCart className="h-5 w-5" />
+                      <span>Cart</span>
+                    </Link>
+                    <Link
+                      to="/wishlist"
+                      className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Heart className="h-5 w-5" />
+                      <span>Wishlist</span>
+                    </Link>
+                    <Link
+                      to="/orders"
+                      className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Package className="h-5 w-5" />
+                      <span>My Orders</span>
+                    </Link>
+                  </>
+                )}
                 <Link
                   to="/create-item"
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"

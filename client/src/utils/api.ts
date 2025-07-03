@@ -375,4 +375,39 @@ export const analyticsAPI = {
     api.get('/analytics/popular-items', { params })
 };
 
+// Admin API
+export const adminAPI = {
+  // Dashboard
+  getDashboard: () => api.get('/admin/dashboard'),
+
+  // User management
+  getUsers: (params?: any) => api.get('/admin/users', { params }),
+  updateUserStatus: (userId: string, data: any) => api.put(`/admin/users/${userId}/status`, data),
+
+  // Item management
+  getItems: (params?: any) => api.get('/admin/items', { params }),
+  updateItemStatus: (itemId: string, data: any) => api.put(`/admin/items/${itemId}/status`, data),
+
+  // Reports
+  getReports: (params?: any) => api.get('/admin/reports', { params }),
+  resolveReport: (itemId: string, data: any) => api.post(`/admin/items/${itemId}/resolve-reports`, data),
+
+  // Analytics
+  getAnalytics: (params?: any) => api.get('/admin/analytics', { params }),
+
+  // Categories
+  getCategories: (params?: any) => api.get('/admin/categories', { params }),
+  createCategory: (data: any) => api.post('/admin/categories', data),
+  updateCategory: (categoryId: string, data: any) => api.put(`/admin/categories/${categoryId}`, data),
+  deleteCategory: (categoryId: string) => api.delete(`/admin/categories/${categoryId}`),
+
+  // Orders
+  getOrders: (params?: any) => api.get('/admin/orders', { params }),
+  updateOrderStatus: (orderId: string, data: any) => api.put(`/admin/orders/${orderId}/status`, data),
+
+  // Settings
+  getSettings: () => api.get('/admin/settings'),
+  updateSettings: (data: any) => api.put('/admin/settings', data),
+};
+
 export default api;
