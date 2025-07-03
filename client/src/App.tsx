@@ -14,7 +14,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import RegisterTypeSelection from './pages/auth/RegisterTypeSelection';
 import StudentRegister from './pages/auth/StudentRegister';
-import AdminRegister from './pages/auth/AdminRegister';
+// AdminRegister removed - admins should only login
 import Dashboard from './pages/Dashboard';
 import Marketplace from './pages/Marketplace';
 import TalentStore from './pages/TalentStore';
@@ -59,7 +59,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<RegisterTypeSelection />} />
               <Route path="/register/student" element={<StudentRegister />} />
-              <Route path="/register/admin" element={<AdminRegister />} />
+              {/* Admin registration route removed - admins should only login */}
               {/* Keep old register route for backward compatibility */}
               <Route path="/register/old" element={<Register />} />
 
