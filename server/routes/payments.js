@@ -1,16 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const Razorpay = require('razorpay');
-const crypto = require('crypto');
-const { protect } = require('../middleware/auth');
-const { validateObjectId } = require('../middleware/validation');
-const Order = require('../models/Order');
-
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const { protect, admin } = require('../middleware/auth');
+const PaymentService = require('../services/paymentService');
+const Payment = require('../models/Payment');
+const Commission = require('../models/Commission');
 
 // @route   POST /api/payments/create-order
 // @desc    Create Razorpay order for payment
@@ -26,360 +19,349 @@ router.post('/create-order', protect, async (req, res) => {
       });
     }
 
-    // Verify order exists and belongs to user
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
-    }
-
-    if (order.buyer._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. This is not your order.'
-      });
-    }
-
-    if (order.status !== 'pending') {
-      return res.status(400).json({
-        success: false,
-        message: 'Order is not in pending status'
-      });
-    }
-
-    // Create Razorpay order
-    const razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(amount * 100), // Convert to paise
-      currency: 'INR',
-      receipt: `order_${orderId}`,
-      notes: {
-        orderId: orderId,
-        buyerId: req.user._id.toString(),
-        sellerId: order.seller._id.toString()
-      }
+    const razorpayOrder = await PaymentService.createRazorpayOrder({
+      orderId,
+      amount
     });
 
-    // Update order with Razorpay order ID
-    order.paymentDetails.razorpayOrderId = razorpayOrder.id;
-    await order.save();
-
-    res.json({
+    res.status(200).json({
       success: true,
-      message: 'Razorpay order created successfully',
       data: {
-        razorpayOrderId: razorpayOrder.id,
+        orderId: razorpayOrder.id,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         key: process.env.RAZORPAY_KEY_ID
       }
     });
-
   } catch (error) {
-    console.error('Razorpay order creation error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error creating payment order'
+      message: error.message
     });
   }
 });
 
 // @route   POST /api/payments/verify
-// @desc    Verify Razorpay payment
+// @desc    Verify and process payment
 // @access  Private
 router.post('/verify', protect, async (req, res) => {
   try {
     const {
+      orderId,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      orderId
+      paymentMethod
     } = req.body;
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !orderId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required payment verification data'
-      });
-    }
-
-    // Find order
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
-    }
-
-    if (order.buyer._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. This is not your order.'
-      });
-    }
-
-    // Verify signature
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(body.toString())
-      .digest('hex');
-
-    if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({
-        success: false,
-        message: 'Payment verification failed. Invalid signature.'
-      });
-    }
-
-    // Update order with payment details
-    order.paymentDetails.razorpayPaymentId = razorpay_payment_id;
-    order.paymentDetails.razorpaySignature = razorpay_signature;
-    order.status = 'paid';
-    await order.save();
-
-    res.json({
-      success: true,
-      message: 'Payment verified successfully',
-      data: { order }
+    const payment = await PaymentService.processPayment({
+      orderId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      paymentMethod
     });
 
+    const receipt = PaymentService.generatePaymentReceipt(payment);
+
+    res.status(200).json({
+      success: true,
+      message: 'Payment processed successfully',
+      data: {
+        payment,
+        receipt
+      }
+    });
   } catch (error) {
-    console.error('Payment verification error:', error);
-    res.status(500).json({
+    res.status(400).json({
       success: false,
-      message: 'Server error verifying payment'
+      message: error.message
     });
   }
 });
 
-// @route   POST /api/payments/upi-upload
-// @desc    Upload UPI payment screenshot
+// @route   POST /api/payments/:paymentId/confirm-delivery
+// @desc    Confirm delivery and release escrow
 // @access  Private
-router.post('/upi-upload', protect, async (req, res) => {
+router.post('/:paymentId/confirm-delivery', protect, async (req, res) => {
   try {
-    const { orderId, transactionId, screenshot } = req.body;
+    const { paymentId } = req.params;
 
-    if (!orderId || !transactionId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Order ID and transaction ID are required'
-      });
-    }
+    const payment = await PaymentService.confirmDeliveryAndReleaseEscrow(
+      paymentId,
+      req.user._id
+    );
 
-    // Find order
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
-    }
-
-    if (order.buyer._id.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. This is not your order.'
-      });
-    }
-
-    if (order.paymentMethod !== 'upi') {
-      return res.status(400).json({
-        success: false,
-        message: 'This order is not set for UPI payment'
-      });
-    }
-
-    // Update order with UPI details
-    order.paymentDetails.upiTransactionId = transactionId;
-    if (screenshot) {
-      order.paymentDetails.screenshot = screenshot;
-    }
-    order.status = 'paid'; // Mark as paid, seller can verify later
-    await order.save();
-
-    res.json({
+    res.status(200).json({
       success: true,
-      message: 'UPI payment details uploaded successfully',
-      data: { order }
+      message: 'Delivery confirmed and payment released to seller',
+      data: payment
     });
-
   } catch (error) {
-    console.error('UPI upload error:', error);
-    res.status(500).json({
+    res.status(400).json({
       success: false,
-      message: 'Server error uploading UPI payment details'
+      message: error.message
     });
   }
 });
 
-// @route   GET /api/payments/order/:orderId
-// @desc    Get payment details for an order
+// @route   POST /api/payments/:paymentId/dispute
+// @desc    Raise payment dispute
 // @access  Private
-router.get('/order/:orderId', 
-  protect,
-  validateObjectId('orderId'),
-  async (req, res) => {
-    try {
-      const order = await Order.findById(req.params.orderId);
-
-      if (!order) {
-        return res.status(404).json({
-          success: false,
-          message: 'Order not found'
-        });
-      }
-
-      // Check if user is buyer or seller
-      const isBuyer = order.buyer._id.toString() === req.user._id.toString();
-      const isSeller = order.seller._id.toString() === req.user._id.toString();
-
-      if (!isBuyer && !isSeller) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. You can only view payment details for your own orders.'
-        });
-      }
-
-      // Return payment details (sensitive info only to relevant parties)
-      const paymentDetails = {
-        orderId: order._id,
-        amount: order.amount,
-        paymentMethod: order.paymentMethod,
-        status: order.status,
-        createdAt: order.createdAt,
-        paymentDetails: {
-          razorpayOrderId: order.paymentDetails.razorpayOrderId,
-          upiTransactionId: order.paymentDetails.upiTransactionId,
-          // Don't expose sensitive payment IDs and signatures to frontend
-        }
-      };
-
-      res.json({
-        success: true,
-        data: { payment: paymentDetails }
-      });
-
-    } catch (error) {
-      console.error('Payment details fetch error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Server error fetching payment details'
-      });
-    }
-  }
-);
-
-// @route   POST /api/payments/refund
-// @desc    Process refund (admin/seller only)
-// @access  Private
-router.post('/refund', protect, async (req, res) => {
+router.post('/:paymentId/dispute', protect, async (req, res) => {
   try {
-    const { orderId, reason, amount } = req.body;
+    const { paymentId } = req.params;
+    const { reason } = req.body;
 
-    if (!orderId || !reason) {
+    if (!reason) {
       return res.status(400).json({
         success: false,
-        message: 'Order ID and reason are required'
+        message: 'Dispute reason is required'
       });
     }
 
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
-    }
+    const payment = await PaymentService.raiseDispute(paymentId, {
+      reason,
+      raisedBy: req.user._id
+    });
 
-    // Check if user is seller or admin
-    const isSeller = order.seller._id.toString() === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
+    res.status(200).json({
+      success: true,
+      message: 'Dispute raised successfully',
+      data: payment
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
 
-    if (!isSeller && !isAdmin) {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. Only seller or admin can process refunds.'
-      });
-    }
+// @route   GET /api/payments/my-earnings
+// @desc    Get seller earnings
+// @access  Private
+router.get('/my-earnings', protect, async (req, res) => {
+  try {
+    const { period = 'month' } = req.query;
 
-    if (order.status !== 'paid') {
-      return res.status(400).json({
-        success: false,
-        message: 'Order must be in paid status to process refund'
-      });
-    }
+    const earnings = await PaymentService.getSellerEarnings(req.user._id, period);
 
-    // Process refund based on payment method
-    if (order.paymentMethod === 'razorpay' && order.paymentDetails.razorpayPaymentId) {
-      try {
-        const refundAmount = amount ? Math.round(amount * 100) : Math.round(order.amount * 100);
-        
-        const refund = await razorpay.payments.refund(
-          order.paymentDetails.razorpayPaymentId,
-          {
-            amount: refundAmount,
-            notes: {
-              reason: reason,
-              orderId: orderId
-            }
-          }
-        );
+    res.status(200).json({
+      success: true,
+      data: earnings
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
 
-        // Update order status
-        order.status = 'refunded';
-        order.metadata.refund = {
-          refundId: refund.id,
-          amount: refund.amount / 100,
-          reason: reason,
-          processedAt: new Date(),
-          processedBy: req.user._id
-        };
-        await order.save();
+// @route   GET /api/payments/my-payments
+// @desc    Get user's payment history
+// @access  Private
+router.get('/my-payments', protect, async (req, res) => {
+  try {
+    const { page = 1, limit = 10, type = 'all' } = req.query;
 
-        res.json({
-          success: true,
-          message: 'Refund processed successfully',
-          data: { 
-            refundId: refund.id,
-            amount: refund.amount / 100,
-            order 
-          }
-        });
+    let query = {};
 
-      } catch (razorpayError) {
-        console.error('Razorpay refund error:', razorpayError);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to process refund through Razorpay'
-        });
-      }
+    if (type === 'purchases') {
+      query.buyer = req.user._id;
+    } else if (type === 'sales') {
+      query.seller = req.user._id;
     } else {
-      // For UPI/cash payments, just mark as refunded
-      order.status = 'refunded';
-      order.metadata.refund = {
-        amount: amount || order.amount,
-        reason: reason,
-        processedAt: new Date(),
-        processedBy: req.user._id,
-        note: 'Manual refund - processed outside platform'
-      };
-      await order.save();
+      query.$or = [
+        { buyer: req.user._id },
+        { seller: req.user._id }
+      ];
+    }
 
-      res.json({
-        success: true,
-        message: 'Order marked as refunded. Manual refund process required.',
-        data: { order }
+    const payments = await Payment.find(query)
+      .populate('buyer', 'name email')
+      .populate('seller', 'name email')
+      .populate('orderId')
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await Payment.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        payments,
+        pagination: {
+          current: page,
+          pages: Math.ceil(total / limit),
+          total
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @route   GET /api/payments/:paymentId/receipt
+// @desc    Get payment receipt
+// @access  Private
+router.get('/:paymentId/receipt', protect, async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+
+    const payment = await Payment.findOne({ paymentId })
+      .populate('buyer', 'name email')
+      .populate('seller', 'name email')
+      .populate('orderId');
+
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payment not found'
       });
     }
 
+    // Check if user is authorized to view this receipt
+    if (payment.buyer._id.toString() !== req.user._id.toString() &&
+        payment.seller._id.toString() !== req.user._id.toString() &&
+        req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view this receipt'
+      });
+    }
+
+    const receipt = PaymentService.generatePaymentReceipt(payment);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        receipt,
+        payment
+      }
+    });
   } catch (error) {
-    console.error('Refund processing error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error processing refund'
+      message: error.message
+    });
+  }
+});
+
+// Admin Routes
+
+// @route   POST /api/payments/:paymentId/refund
+// @desc    Process refund (Admin only)
+// @access  Private (Admin)
+router.post('/:paymentId/refund', protect, admin, async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const { amount, reason } = req.body;
+
+    if (!amount || !reason) {
+      return res.status(400).json({
+        success: false,
+        message: 'Amount and reason are required'
+      });
+    }
+
+    const result = await PaymentService.processRefund(paymentId, {
+      amount,
+      reason,
+      processedBy: req.user._id
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Refund processed successfully',
+      data: result
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// @route   GET /api/payments/admin/dashboard
+// @desc    Get payment dashboard for admin
+// @access  Private (Admin)
+router.get('/admin/dashboard', protect, admin, async (req, res) => {
+  try {
+    const { period = 'month' } = req.query;
+
+    const now = new Date();
+    let startDate, endDate;
+
+    switch (period) {
+      case 'week':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        endDate = now;
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        endDate = new Date(now.getFullYear(), 11, 31);
+        break;
+      default:
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    }
+
+    // Get payment statistics
+    const stats = await Payment.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalAmount' },
+          totalCommission: { $sum: '$platformCommission' },
+          totalTransactions: { $sum: 1 },
+          completedTransactions: {
+            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+          },
+          pendingEscrow: {
+            $sum: { $cond: [{ $eq: ['$escrowStatus', 'held'] }, '$sellerAmount', 0] }
+          },
+          releasedEscrow: {
+            $sum: { $cond: [{ $eq: ['$escrowStatus', 'released'] }, '$sellerAmount', 0] }
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        period,
+        stats: stats[0] || {
+          totalRevenue: 0,
+          totalCommission: 0,
+          totalTransactions: 0,
+          completedTransactions: 0,
+          pendingEscrow: 0,
+          releasedEscrow: 0
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 });

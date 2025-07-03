@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 
 // Layout Components
-import Navbar from './components/layout/Navbar';
+import Layout from './components/layout/Layout';
 import Footer from './components/layout/Footer';
 
 // Page Components
@@ -17,6 +17,9 @@ import StudentRegister from './pages/auth/StudentRegister';
 import Cart from './pages/Cart';
 import Wishlist from './pages/Wishlist';
 import Orders from './pages/Orders';
+import Notifications from './pages/Notifications';
+import Checkout from './pages/Checkout';
+import PaymentSuccess from './pages/PaymentSuccess';
 // AdminRegister removed - admins should only login
 import Dashboard from './pages/Dashboard';
 import Marketplace from './pages/Marketplace';
@@ -43,11 +46,8 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          <Navbar />
-
-          <main className="flex-grow">
-            <Routes>
+        <Layout>
+          <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/purpose" element={<PurposeSelection />} />
@@ -84,6 +84,21 @@ function App() {
               <Route path="/wishlist" element={
                 <ProtectedRoute>
                   <Wishlist />
+                </ProtectedRoute>
+              } />
+              <Route path="/notifications" element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkout" element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              } />
+              <Route path="/payment-success" element={
+                <ProtectedRoute>
+                  <PaymentSuccess />
                 </ProtectedRoute>
               } />
               <Route path="/create-item" element={
@@ -125,9 +140,7 @@ function App() {
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </main>
-
-          <Footer />
+          </Layout>
 
           {/* Toast Notifications */}
           <Toaster
@@ -154,7 +167,6 @@ function App() {
               },
             }}
           />
-        </div>
       </Router>
     </AuthProvider>
   );
