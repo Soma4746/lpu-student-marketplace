@@ -14,6 +14,9 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import RegisterTypeSelection from './pages/auth/RegisterTypeSelection';
 import StudentRegister from './pages/auth/StudentRegister';
+import Cart from './pages/Cart';
+import Wishlist from './pages/Wishlist';
+import Orders from './pages/Orders';
 // AdminRegister removed - admins should only login
 import Dashboard from './pages/Dashboard';
 import Marketplace from './pages/Marketplace';
@@ -25,8 +28,7 @@ import CreateItem from './pages/CreateItem';
 import CreateTalent from './pages/CreateTalent';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
-import Orders from './components/Orders';
-import Wishlist from './components/Wishlist';
+// Orders and Wishlist now imported from pages above
 
 // Admin Components
 import AdminLayout from './components/admin/AdminLayout';
@@ -72,6 +74,16 @@ function App() {
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/cart" element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              } />
+              <Route path="/wishlist" element={
+                <ProtectedRoute>
+                  <Wishlist />
                 </ProtectedRoute>
               } />
               <Route path="/create-item" element={
