@@ -27,12 +27,14 @@ import {
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
   const { state } = useAuth();
   const location = useLocation();
-  const [expandedSections, setExpandedSections] = useState<string[]>(['marketplace']);
+  const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => 
@@ -66,47 +68,78 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Navigation</h2>
-        <button
-          onClick={onClose}
-          className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600"
-        >
-          <X className="h-5 w-5" />
-        </button>
+      <div className="flex items-center justify-between p-4 border-b border-slate-700">
+        {!isCollapsed && (
+          <h2 className="text-lg font-semibold text-white">Navigation</h2>
+        )}
+        <div className="flex items-center space-x-2">
+          {/* Desktop Toggle Button */}
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:block p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+            title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          {/* Mobile Close Button */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Navigation Content */}
       <div className="flex-1 overflow-y-auto py-4">
-        <nav className="space-y-2 px-4">
+        <nav className={`space-y-1 ${isCollapsed ? 'px-2' : 'px-4'}`}>
           {/* Home */}
           <Link
             to="/"
             onClick={onClose}
-            className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
               isActive('/')
-                ? 'bg-primary-100 text-primary-700'
-                : 'text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 text-white shadow-lg'
+                : 'text-slate-300 hover:bg-slate-700 hover:text-white'
             }`}
+            title={isCollapsed ? 'Home' : ''}
           >
-            <Home className="h-5 w-5 mr-3" />
-            Home
+            <Home className="h-5 w-5 flex-shrink-0" />
+            {!isCollapsed && <span className="ml-3">Home</span>}
+            {isCollapsed && (
+              <div className="absolute left-16 bg-slate-800 text-white px-2 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                Home
+              </div>
+            )}
           </Link>
 
           {/* Marketplace Section */}
           <div>
             <button
-              onClick={() => toggleSection('marketplace')}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+              onClick={() => !isCollapsed && toggleSection('marketplace')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group relative ${
+                isActive('/marketplace')
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+              }`}
+              title={isCollapsed ? 'Marketplace' : ''}
             >
               <div className="flex items-center">
-                <ShoppingBag className="h-5 w-5 mr-3" />
-                Marketplace
+                <ShoppingBag className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && <span className="ml-3">Marketplace</span>}
               </div>
-              {expandedSections.includes('marketplace') ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
+              {!isCollapsed && (
+                expandedSections.includes('marketplace') ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )
+              )}
+              {isCollapsed && (
+                <div className="absolute left-16 bg-slate-800 text-white px-2 py-1 rounded-md text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                  Marketplace
+                </div>
               )}
             </button>
             
@@ -426,8 +459,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 bg-slate-900 shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+          isCollapsed ? 'w-16' : 'w-64'
+        } ${
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {sidebarContent}
